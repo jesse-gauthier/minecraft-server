@@ -11,7 +11,7 @@ app.use(cors());
 
 // Define a route handler for the default home page
 app.get('/', (req, res) => {
-  res.send('Hello World');
+  res.send('Hello World from Dockerized Node.js app!');
 });
 
 // Start the server
