@@ -269,7 +269,7 @@ app.post("/create-server", async (req, res) => {
 
     // Use pre-defined nestId and eggId for the pre-made egg
     const nestId = 1; // Replace with your specific nest ID
-    const eggId = 1;  // Replace with your specific egg ID
+    const eggId = 2;  // Replace with your specific egg ID
 
     // Fetch allocation ID as before
     const allocationId = await getAvailableAllocationId();
@@ -284,6 +284,7 @@ app.post("/create-server", async (req, res) => {
       environment: {
         SERVER_JARFILE: "server.jar",
         VERSION: "latest",
+        VANILLA_VERSION: "latest", // Required field for the egg
         BUILD_NUMBER: "latest",
         SPONGE_VERSION: "latest",
         BUNGEE_VERSION: "latest",
@@ -317,6 +318,7 @@ app.post("/create-server", async (req, res) => {
     res.status(500).json({ error });
   }
 });
+
 
 
 app.listen(port, () => {
