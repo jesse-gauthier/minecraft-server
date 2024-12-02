@@ -267,7 +267,11 @@ app.post("/create-server", async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const { nestId, eggId } = await getNestAndEggIds();
+    // Use pre-defined nestId and eggId for the pre-made egg
+    const nestId = 1; // Replace with your specific nest ID
+    const eggId = 1;  // Replace with your specific egg ID
+
+    // Fetch allocation ID as before
     const allocationId = await getAvailableAllocationId();
 
     const serverPayload = {
@@ -313,6 +317,7 @@ app.post("/create-server", async (req, res) => {
     res.status(500).json({ error });
   }
 });
+
 
 app.listen(port, () => {
   console.log(`API server is running on port ${port}`);
