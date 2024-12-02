@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
-import axios from "axios";
 import cors from "cors";
+import fetch from "node-fetch";
 
 dotenv.config();
 
@@ -30,104 +30,131 @@ const headers = {
 
 const createUser = async (userData) => {
   try {
-    const response = await axios.post(
-      `${PANEL_URL}/api/application/users`,
-      userData,
-      { headers }
-    );
-    return response.data.attributes;
+    console.log("Attempting to create user with data: ", userData);
+    const response = await fetch(`${PANEL_URL}/api/application/users`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(userData),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data || response.statusText);
+    console.log("User creation successful. Response: ", data.attributes);
+    return data.attributes;
   } catch (error) {
-    throw error.response?.data || error.message;
+    console.error("Error creating user: ", error.message);
+    throw error.message;
   }
 };
 
 const getUserByEmail = async (email) => {
   try {
-    const response = await axios.get(
-      `${PANEL_URL}/api/application/users?filter[email]=${email}`,
-      { headers }
-    );
-    if (response.data.data.length > 0) {
-      return response.data.data[0].attributes;
+    console.log("Fetching user by email: ", email);
+    const response = await fetch(`${PANEL_URL}/api/application/users?filter[email]=${email}`, {
+      method: 'GET',
+      headers,
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data || response.statusText);
+    if (data.data.length > 0) {
+      console.log("User found with email: ", email);
+      return data.data[0].attributes;
     }
+    console.log("No user found with email: ", email);
     return null;
   } catch (error) {
-    throw error.response?.data || error.message;
+    console.error("Error fetching user by email: ", error.message);
+    throw error.message;
   }
 };
 
 const createServer = async (serverData) => {
   try {
-    const response = await axios.post(
-      `${PANEL_URL}/api/application/servers`,
-      serverData,
-      { headers }
-    );
-    return response.data.attributes;
+    console.log("Attempting to create server with data: ", serverData);
+    const response = await fetch(`${PANEL_URL}/api/application/servers`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(serverData),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data || response.statusText);
+    console.log("Server creation successful. Response: ", data.attributes);
+    return data.attributes;
   } catch (error) {
-    throw error.response?.data || error.message;
+    console.error("Error creating server: ", error.message);
+    throw error.message;
   }
 };
 
 const getNestAndEggIds = async () => {
   try {
-    const nestsResponse = await axios.get(
-      `${PANEL_URL}/api/application/nests`,
-      { headers }
-    );
-    const minecraftNest = nestsResponse.data.data.find(
+    console.log("Fetching nest and egg IDs...");
+    const nestsResponse = await fetch(`${PANEL_URL}/api/application/nests`, {
+      method: 'GET',
+      headers,
+    });
+    const nestsData = await nestsResponse.json();
+    if (!nestsResponse.ok) throw new Error(nestsData || nestsResponse.statusText);
+    const minecraftNest = nestsData.data.find(
       (nest) => nest.attributes.name.toLowerCase() === "minecraft"
     );
     if (!minecraftNest) throw new Error("Minecraft nest not found");
     const nestId = minecraftNest.attributes.id;
 
-    const eggsResponse = await axios.get(
-      `${PANEL_URL}/api/application/nests/${nestId}/eggs`,
-      { headers }
-    );
-    const paperEgg = eggsResponse.data.data.find(
+    const eggsResponse = await fetch(`${PANEL_URL}/api/application/nests/${nestId}/eggs`, {
+      method: 'GET',
+      headers,
+    });
+    const eggsData = await eggsResponse.json();
+    if (!eggsResponse.ok) throw new Error(eggsData || eggsResponse.statusText);
+    const paperEgg = eggsData.data.find(
       (egg) => egg.attributes.name.toLowerCase() === "paper"
     );
     if (!paperEgg) throw new Error("Paper egg not found");
     const eggId = paperEgg.attributes.id;
 
+    console.log("Nest and egg IDs fetched successfully. Nest ID: ", nestId, ", Egg ID: ", eggId);
     return { nestId, eggId };
   } catch (error) {
-    throw error.response?.data || error.message;
+    console.error("Error fetching nest and egg IDs: ", error.message);
+    throw error.message;
   }
 };
 
 const getAvailableAllocationId = async () => {
   try {
-    const allocationsResponse = await axios.get(
-      `${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations`,
-      { headers }
-    );
-    const allocations = allocationsResponse.data.data;
-    const availableAllocation = allocations.find(
+    console.log("Fetching available allocation ID...");
+    const allocationsResponse = await fetch(`${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations`, {
+      method: 'GET',
+      headers,
+    });
+    const allocationsData = await allocationsResponse.json();
+    if (!allocationsResponse.ok) throw new Error(allocationsData || allocationsResponse.statusText);
+    const availableAllocation = allocationsData.data.find(
       (allocation) => !allocation.attributes.assigned
     );
     if (!availableAllocation) throw new Error("No available allocations");
+    console.log("Available allocation ID fetched successfully: ", availableAllocation.attributes.id);
     return availableAllocation.attributes.id;
   } catch (error) {
-    throw error.response?.data || error.message;
+    console.error("Error fetching available allocation ID: ", error.message);
+    throw error.message;
   }
 };
 
 app.post("/create-user", async (req, res) => {
   try {
     const { username, email, first_name, last_name, password } = req.body;
+    console.log("Received request to create user with email: ", email);
     if (!username || !email || !first_name || !last_name || !password) {
+      console.error("Missing required fields in request body");
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Check if the email already exists
     const existingUser = await getUserByEmail(email);
     if (existingUser) {
+      console.log("User already exists with email: ", email);
       return res.status(200).json({ message: "User already exists", user_number: existingUser.id, user: existingUser });
     }
-
-    // Additional input validation can be added here
 
     const userPayload = {
       username,
@@ -139,8 +166,10 @@ app.post("/create-user", async (req, res) => {
     };
 
     const user = await createUser(userPayload);
+    console.log("User created successfully with email: ", email);
     res.status(201).json({ message: "User created", user_number: user.id, user });
   } catch (error) {
+    console.error("Error in /create-user endpoint: ", error);
     res.status(500).json({ error });
   }
 });
@@ -148,11 +177,11 @@ app.post("/create-user", async (req, res) => {
 app.post("/create-server", async (req, res) => {
   try {
     const { user_id, server_name, memory, disk } = req.body;
+    console.log("Received request to create server for user ID: ", user_id);
     if (!user_id || !server_name || !memory || !disk) {
+      console.error("Missing required fields in request body");
       return res.status(400).json({ error: "Missing required fields" });
     }
-
-    // Additional input validation can be added here
 
     const { nestId, eggId } = await getNestAndEggIds();
     const allocationId = await getAvailableAllocationId();
@@ -190,8 +219,10 @@ app.post("/create-server", async (req, res) => {
     };
 
     const server = await createServer(serverPayload);
+    console.log("Server created successfully for user ID: ", user_id);
     res.status(201).json({ message: "Server created", server });
   } catch (error) {
+    console.error("Error in /create-server endpoint: ", error);
     res.status(500).json({ error });
   }
 });
