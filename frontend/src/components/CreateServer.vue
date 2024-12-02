@@ -83,7 +83,7 @@ const createServer = async () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        user_id: authStore.user.uid,
+        user_id: authStore.userNumber,
         server_name: serverName.value,
         memory: memory.value,
         disk: disk.value,

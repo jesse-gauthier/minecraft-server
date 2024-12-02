@@ -1,4 +1,3 @@
-// src/stores/auth.js
 import { defineStore } from 'pinia'
 import { auth } from '../firebase'
 import {
@@ -7,12 +6,22 @@ import {
   signOut,
   createUserWithEmailAndPassword,
 } from 'firebase/auth'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 export const useAuthStore = defineStore('auth', () => {
+  // Initialize userNumber from localStorage if available
   const user = ref(null)
-  const userNumber = ref(null)
+  const userNumber = ref(localStorage.getItem('userNumber') || null)
   const isAuthResolved = ref(false)
+
+  // Watch userNumber and update localStorage whenever it changes
+  watch(userNumber, (newValue) => {
+    if (newValue) {
+      localStorage.setItem('userNumber', newValue)
+    } else {
+      localStorage.removeItem('userNumber')
+    }
+  })
 
   const login = async () => {
     const provider = new GoogleAuthProvider()
@@ -73,9 +82,12 @@ export const useAuthStore = defineStore('auth', () => {
       const data = await response.json()
       if (response.ok) {
         userNumber.value = data.user_number
+        console.log('User created in backend. User number: ', data.user_number)
+      } else {
+        console.error('Failed to create user in backend: ', data)
       }
     } catch (error) {
-      console.error(error)
+      console.error('Registration failed: ', error)
     }
   }
 
@@ -90,6 +102,12 @@ export const useAuthStore = defineStore('auth', () => {
     auth.onAuthStateChanged((currentUser) => {
       user.value = currentUser
       isAuthResolved.value = true
+
+      // If the user is authenticated, try to fetch userNumber from localStorage
+      if (currentUser && !userNumber.value) {
+        userNumber.value = localStorage.getItem('userNumber')
+      }
+
       resolve()
     })
   })
