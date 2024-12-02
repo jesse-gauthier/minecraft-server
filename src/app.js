@@ -10,7 +10,10 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173/', // Replace with your frontend URL
+  
+}));
 app.use(express.json());
 
 const API_KEY = process.env.PTERODACTYL_API_KEY;

@@ -2,12 +2,190 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOCUMENT ID</title>
+    <title>Pterodactyl API Client</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8">Pterodactyl API Client</h1>
 
+        <!-- Create New User Form -->
+        <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-8">
+            <h2 class="text-2xl font-semibold mb-6">Create New User</h2>
+            <form id="create-user-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                        Username
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                           id="username" type="text" placeholder="Username" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+                        Email
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                           id="email" type="email" placeholder="Email" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="first_name">
+                        First Name
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                           id="first_name" type="text" placeholder="First Name" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="last_name">
+                        Last Name
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                           id="last_name" type="text" placeholder="Last Name" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                        Password
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                           id="password" type="password" placeholder="Password" required>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button id="create-user-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                        Create User
+                    </button>
+                </div>
+            </form>
+            <div id="user-result" class="mt-4 text-green-600"></div>
+        </div>
 
-    
+        <!-- Create Server Form -->
+        <div class="bg-white shadow-md rounded px-8 pt-6 pb-8">
+            <h2 class="text-2xl font-semibold mb-6">Create Server</h2>
+            <form id="create-server-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="user_id">
+                        User ID
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                           id="user_id" type="number" placeholder="User ID" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="server_name">
+                        Server Name
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                           id="server_name" type="text" placeholder="Server Name" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="memory">
+                        Memory (MB)
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                           id="memory" type="number" placeholder="2048" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="disk">
+                        Disk Space (MB)
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                           id="disk" type="number" placeholder="10000" required>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button id="create-server-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                        Create Server
+                    </button>
+                </div>
+            </form>
+            <div id="server-result" class="mt-4 text-green-600"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript Code -->
+    <script>
+        // Replace with your server address
+        const SERVER_URL = 'http://147.79.74.105:3000';
+
+        // Handle Create User Form Submission
+        document.getElementById('create-user-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const first_name = document.getElementById('first_name').value.trim();
+            const last_name = document.getElementById('last_name').value.trim();
+            const password = document.getElementById('password').value;
+
+            const userData = {
+                username,
+                email,
+                first_name,
+                last_name,
+                password
+            };
+
+            try {
+                const response = await fetch(`${SERVER_URL}/create-user`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('user-result').textContent = 'User created successfully! User ID: ' + result.user.id;
+                    document.getElementById('create-user-form').reset();
+                } else {
+                    document.getElementById('user-result').textContent = 'Error: ' + (result.error || 'Unknown error occurred.');
+                    document.getElementById('user-result').classList.add('text-red-600');
+                }
+            } catch (error) {
+                document.getElementById('user-result').textContent = 'Error: ' + error.message;
+                document.getElementById('user-result').classList.add('text-red-600');
+            }
+        });
+
+        // Handle Create Server Form Submission
+        document.getElementById('create-server-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const user_id = document.getElementById('user_id').value.trim();
+            const server_name = document.getElementById('server_name').value.trim();
+            const memory = document.getElementById('memory').value.trim();
+            const disk = document.getElementById('disk').value.trim();
+
+            const serverData = {
+                user_id,
+                server_name,
+                memory,
+                disk
+            };
+
+            try {
+                const response = await fetch(`${SERVER_URL}/create-server`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(serverData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('server-result').textContent = 'Server created successfully! Server ID: ' + result.server.id;
+                    document.getElementById('create-server-form').reset();
+                } else {
+                    document.getElementById('server-result').textContent = 'Error: ' + (result.error || 'Unknown error occurred.');
+                    document.getElementById('server-result').classList.add('text-red-600');
+                }
+            } catch (error) {
+                document.getElementById('server-result').textContent = 'Error: ' + error.message;
+                document.getElementById('server-result').classList.add('text-red-600');
+            }
+        });
+    </script>
 </body>
 </html>
