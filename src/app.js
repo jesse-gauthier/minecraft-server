@@ -269,7 +269,7 @@ app.post("/create-server", async (req, res) => {
 
     // Use pre-defined nestId and eggId for the pre-made egg
     const nestId = 1; // Replace with your specific nest ID
-    const eggId = 2;  // Replace with your specific egg ID
+    const eggId = 1;  // Replace with your specific egg ID
 
     // Fetch allocation ID as before
     const allocationId = await getAvailableAllocationId();
