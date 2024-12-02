@@ -1,5 +1,3 @@
-// app.js
-
 import express from "express";
 import dotenv from "dotenv";
 import axios from "axios";
@@ -38,6 +36,21 @@ const createUser = async (userData) => {
       { headers }
     );
     return response.data.attributes;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+const getUserByEmail = async (email) => {
+  try {
+    const response = await axios.get(
+      `${PANEL_URL}/api/application/users?filter[email]=${email}`,
+      { headers }
+    );
+    if (response.data.data.length > 0) {
+      return response.data.data[0].attributes;
+    }
+    return null;
   } catch (error) {
     throw error.response?.data || error.message;
   }
@@ -106,6 +119,12 @@ app.post("/create-user", async (req, res) => {
     const { username, email, first_name, last_name, password } = req.body;
     if (!username || !email || !first_name || !last_name || !password) {
       return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Check if the email already exists
+    const existingUser = await getUserByEmail(email);
+    if (existingUser) {
+      return res.status(200).json({ message: "User already exists", user_number: existingUser.id });
     }
 
     // Additional input validation can be added here

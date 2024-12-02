@@ -1,7 +1,7 @@
 // src/stores/auth.js
 import { defineStore } from 'pinia'
 import { auth } from '../firebase'
-import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth'
+import { GoogleAuthProvider, signInWithPopup, signOut, createUserWithEmailAndPassword } from 'firebase/auth'
 import { ref } from 'vue'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -13,6 +13,31 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const result = await signInWithPopup(auth, provider)
       user.value = result.user
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const register = async (email, password, username, firstName, lastName) => {
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password)
+      user.value = result.user
+
+      // Create user in the backend using Fetch API
+      const userPayload = {
+        username,
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        password
+      }
+      await fetch('http://147.79.74.105:3000/create-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userPayload)
+      })
     } catch (error) {
       console.error(error)
     }
@@ -32,5 +57,5 @@ export const useAuthStore = defineStore('auth', () => {
     })
   })
 
-  return { user, login, logout, isAuthResolved, authReady }
+  return { user, login, logout, register, isAuthResolved, authReady }
 })

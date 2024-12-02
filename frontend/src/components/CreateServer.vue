@@ -58,7 +58,7 @@ const createServer = async () => {
   error.value = ''
 
   try {
-    const response = await fetch('http://147.79.74.105/create-server', {
+    const response = await fetch('http://147.79.74.105:3000/create-server', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
