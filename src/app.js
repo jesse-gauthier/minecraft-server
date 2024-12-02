@@ -2,7 +2,6 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 
-
 dotenv.config();
 
 const app = express();
@@ -45,7 +44,7 @@ const createUser = async (userData) => {
     console.log("User creation successful. Response: ", data.attributes);
     return data.attributes;
   } catch (error) {
-    console.error("Error creating user: ", error);
+    console.error("Error creating user: ", typeof error === 'object' ? JSON.stringify(error, null, 2) : error);
     throw error;
   }
 };
@@ -66,26 +65,26 @@ const getUserByEmail = async (email) => {
     console.log("No user found with email: ", email);
     return null;
   } catch (error) {
-    console.error("Error fetching user by email: ", error.message);
-    throw error.message;
+    console.error("Error fetching user by email: ", typeof error === 'object' ? JSON.stringify(error, null, 2) : error);
+    throw error;
   }
 };
 
 const createServer = async (serverData) => {
   try {
-    console.log("Attempting to create server with data: ", serverData);
+    console.log("Attempting to create server with data: ", JSON.stringify(serverData, null, 2));
     const response = await fetch(`${PANEL_URL}/api/application/servers`, {
       method: 'POST',
       headers,
       body: JSON.stringify(serverData),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data || response.statusText);
+    if (!response.ok) throw new Error(JSON.stringify(data) || response.statusText);
     console.log("Server creation successful. Response: ", data.attributes);
     return data.attributes;
   } catch (error) {
-    console.error("Error creating server: ", error.message);
-    throw error.message;
+    console.error("Error creating server: ", typeof error === 'object' ? JSON.stringify(error, null, 2) : error);
+    throw error;
   }
 };
 
@@ -97,7 +96,7 @@ const getNestAndEggIds = async () => {
       headers,
     });
     const nestsData = await nestsResponse.json();
-    if (!nestsResponse.ok) throw new Error(nestsData || nestsResponse.statusText);
+    if (!nestsResponse.ok) throw new Error(JSON.stringify(nestsData) || nestsResponse.statusText);
     const minecraftNest = nestsData.data.find(
       (nest) => nest.attributes.name.toLowerCase() === "minecraft"
     );
@@ -109,7 +108,7 @@ const getNestAndEggIds = async () => {
       headers,
     });
     const eggsData = await eggsResponse.json();
-    if (!eggsResponse.ok) throw new Error(eggsData || eggsResponse.statusText);
+    if (!eggsResponse.ok) throw new Error(JSON.stringify(eggsData) || eggsResponse.statusText);
     const paperEgg = eggsData.data.find(
       (egg) => egg.attributes.name.toLowerCase() === "paper"
     );
@@ -119,8 +118,8 @@ const getNestAndEggIds = async () => {
     console.log("Nest and egg IDs fetched successfully. Nest ID: ", nestId, ", Egg ID: ", eggId);
     return { nestId, eggId };
   } catch (error) {
-    console.error("Error fetching nest and egg IDs: ", error.message);
-    throw error.message;
+    console.error("Error fetching nest and egg IDs: ", typeof error === 'object' ? JSON.stringify(error, null, 2) : error);
+    throw error;
   }
 };
 
@@ -132,7 +131,7 @@ const getAvailableAllocationId = async () => {
       headers,
     });
     const allocationsData = await allocationsResponse.json();
-    if (!allocationsResponse.ok) throw new Error(allocationsData || allocationsResponse.statusText);
+    if (!allocationsResponse.ok) throw new Error(JSON.stringify(allocationsData) || allocationsResponse.statusText);
     const availableAllocation = allocationsData.data.find(
       (allocation) => !allocation.attributes.assigned
     );
@@ -140,8 +139,8 @@ const getAvailableAllocationId = async () => {
     console.log("Available allocation ID fetched successfully: ", availableAllocation.attributes.id);
     return availableAllocation.attributes.id;
   } catch (error) {
-    console.error("Error fetching available allocation ID: ", error.message);
-    throw error.message;
+    console.error("Error fetching available allocation ID: ", typeof error === 'object' ? JSON.stringify(error, null, 2) : error);
+    throw error;
   }
 };
 
@@ -177,7 +176,7 @@ app.post("/create-user", async (req, res) => {
     console.log("User created successfully with email: ", email);
     res.status(201).json({ message: "User created", user_number: user.id, user, temp_password: password });
   } catch (error) {
-    console.error("Error in /create-user endpoint: ", JSON.stringify(error, null, 2));
+    console.error("Error in /create-user endpoint: ", typeof error === 'object' ? JSON.stringify(error, null, 2) : error);
     res.status(500).json({ error });
   }
 });
@@ -230,7 +229,7 @@ app.post("/create-server", async (req, res) => {
     console.log("Server created successfully for user ID: ", user_id);
     res.status(201).json({ message: "Server created", server });
   } catch (error) {
-    console.error("Error in /create-server endpoint: ", error);
+    console.error("Error in /create-server endpoint: ", typeof error === 'object' ? JSON.stringify(error, null, 2) : error);
     res.status(500).json({ error });
   }
 });

@@ -1,4 +1,3 @@
-<!-- src/components/CreateServer.vue -->
 <template>
   <div class="container mx-auto p-4">
     <h2 class="text-xl font-bold mb-4">Create a New Server</h2>
@@ -36,6 +35,22 @@
     </form>
     <p v-if="message" class="text-green-500 mt-4">{{ message }}</p>
     <p v-if="error" class="text-red-500 mt-4">{{ error }}</p>
+
+    <!-- Modal for displaying server information -->
+    <div
+      v-if="showModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <div class="bg-white p-6 rounded shadow-lg w-1/3">
+        <h3 class="text-lg font-bold mb-4">Server Created Successfully</h3>
+        <p><strong>Server Name:</strong> {{ serverName }}</p>
+        <p><strong>Memory:</strong> {{ memory }} MB</p>
+        <p><strong>Disk Space:</strong> {{ disk }} MB</p>
+        <p><strong>Username:</strong> {{ serverInfo.username }}</p>
+        <p><strong>Password:</strong> {{ serverInfo.temp_password }}</p>
+        <button @click="closeModal" class="btn btn-secondary mt-4">Close</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -51,11 +66,15 @@ const disk = ref(10240) // Default 10GB
 const isLoading = ref(false)
 const message = ref('')
 const error = ref('')
+const showModal = ref(false)
+const serverInfo = ref({})
 
 const createServer = async () => {
   isLoading.value = true
   message.value = ''
   error.value = ''
+  showModal.value = false
+  serverInfo.value = {}
 
   try {
     const response = await fetch('http://147.79.74.105:3000/create-server', {
@@ -79,12 +98,22 @@ const createServer = async () => {
 
     const data = await response.json()
     message.value = data.message || 'Server created successfully!'
+    serverInfo.value = {
+      ...data.server,
+      username: data.server.user,
+      temp_password: data.server.temp_password,
+    }
+    showModal.value = true
   } catch (err) {
     error.value = err.message
     console.error(err)
   } finally {
     isLoading.value = false
   }
+}
+
+const closeModal = () => {
+  showModal.value = false
 }
 </script>
 
