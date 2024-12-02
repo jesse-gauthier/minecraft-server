@@ -148,9 +148,9 @@ const getAvailableAllocationId = async () => {
 app.post("/create-user", async (req, res) => {
   try {
     const { email, first_name, last_name } = req.body;
-    const username = `user_${Math.floor(Math.random() * 100000)}`;
+    
     const password = generateRandomPassword();
-    const username = `user_${Math.floor(Math.random() * 100000)}`;
+    const username = `user_${Math.floor(Math.random() * 1000000)}`;
     
     console.log("Received request to create user with email: ", email);
     if (!username || !email || !first_name || !last_name || !password) {
