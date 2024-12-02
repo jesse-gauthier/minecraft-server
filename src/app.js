@@ -1,3 +1,5 @@
+// src/app.js
+
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -30,7 +32,7 @@ const headers = {
 
 const createUser = async (userData) => {
   try {
-    console.log("Attempting to create user with data: ", userData);
+    console.log("Attempting to create user with data: ", JSON.stringify(userData, null, 2));
     const response = await fetch(`${PANEL_URL}/api/application/users`, {
       method: 'POST',
       headers,
@@ -143,7 +145,8 @@ const getAvailableAllocationId = async () => {
 
 app.post("/create-user", async (req, res) => {
   try {
-    const { username, email, first_name, last_name, password } = req.body;
+    const { email, first_name, last_name, password } = req.body;
+    const username = email;
     console.log("Received request to create user with email: ", email);
     if (!username || !email || !first_name || !last_name || !password) {
       console.error("Missing required fields in request body");
