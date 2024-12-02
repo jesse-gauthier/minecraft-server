@@ -37,12 +37,12 @@ const createUser = async (userData) => {
       body: JSON.stringify(userData),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data || response.statusText);
+    if (!response.ok) throw new Error(JSON.stringify(data) || response.statusText);
     console.log("User creation successful. Response: ", data.attributes);
     return data.attributes;
   } catch (error) {
-    console.error("Error creating user: ", error.message);
-    throw error.message;
+    console.error("Error creating user: ", error);
+    throw error;
   }
 };
 
@@ -169,7 +169,7 @@ app.post("/create-user", async (req, res) => {
     console.log("User created successfully with email: ", email);
     res.status(201).json({ message: "User created", user_number: user.id, user });
   } catch (error) {
-    console.error("Error in /create-user endpoint: ", error);
+    console.error("Error in /create-user endpoint: ", JSON.stringify(error, null, 2));
     res.status(500).json({ error });
   }
 });

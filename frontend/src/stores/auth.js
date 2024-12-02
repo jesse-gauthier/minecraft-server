@@ -1,7 +1,12 @@
 // src/stores/auth.js
 import { defineStore } from 'pinia'
 import { auth } from '../firebase'
-import { GoogleAuthProvider, signInWithPopup, signOut, createUserWithEmailAndPassword } from 'firebase/auth'
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  createUserWithEmailAndPassword,
+} from 'firebase/auth'
 import { ref } from 'vue'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -12,10 +17,36 @@ export const useAuthStore = defineStore('auth', () => {
   const login = async () => {
     const provider = new GoogleAuthProvider()
     try {
+      console.log('Attempting to log in with Google provider...')
       const result = await signInWithPopup(auth, provider)
       user.value = result.user
+      console.log('Login successful. User: ', result.user)
+
+      // Create user in the backend using Fetch API
+      const userPayload = {
+        username: result.user.displayName,
+        email: result.user.email,
+        first_name: result.user.displayName?.split(' ')[0] || '',
+        last_name: result.user.displayName?.split(' ')[1] || '',
+        password: 'N/A', // Password is not available for Google login
+      }
+      console.log('Sending user data to backend to create user record...')
+      const response = await fetch('http://147.79.74.105:3000/create-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userPayload),
+      })
+      const data = await response.json()
+      if (response.ok) {
+        userNumber.value = data.user_number
+        console.log('User created in backend. User number: ', data.user_number)
+      } else {
+        console.error('Failed to create user in backend: ', data)
+      }
     } catch (error) {
-      console.error(error)
+      console.error('Login failed: ', error)
     }
   }
 
@@ -30,14 +61,14 @@ export const useAuthStore = defineStore('auth', () => {
         email,
         first_name: firstName,
         last_name: lastName,
-        password
+        password,
       }
       const response = await fetch('http://147.79.74.105:3000/create-user', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userPayload)
+        body: JSON.stringify(userPayload),
       })
       const data = await response.json()
       if (response.ok) {
