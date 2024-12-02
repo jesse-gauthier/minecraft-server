@@ -1,5 +1,3 @@
-// src/app.js
-
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -28,6 +26,10 @@ const headers = {
   Authorization: `Bearer ${API_KEY}`,
   "Content-Type": "application/json",
   Accept: "Application/vnd.pterodactyl.v1+json",
+};
+
+const generateRandomPassword = () => {
+  return Math.random().toString(36).slice(-8); // Generates an 8-character password
 };
 
 const createUser = async (userData) => {
@@ -145,8 +147,11 @@ const getAvailableAllocationId = async () => {
 
 app.post("/create-user", async (req, res) => {
   try {
-    const { email, first_name, last_name, password } = req.body;
-    const username = email;
+    const { email, first_name, last_name } = req.body;
+    const username = `user_${Math.floor(Math.random() * 100000)}`;
+    const password = generateRandomPassword();
+    const username = `user_${Math.floor(Math.random() * 100000)}`;
+    
     console.log("Received request to create user with email: ", email);
     if (!username || !email || !first_name || !last_name || !password) {
       console.error("Missing required fields in request body");
@@ -170,7 +175,7 @@ app.post("/create-user", async (req, res) => {
 
     const user = await createUser(userPayload);
     console.log("User created successfully with email: ", email);
-    res.status(201).json({ message: "User created", user_number: user.id, user });
+    res.status(201).json({ message: "User created", user_number: user.id, user, temp_password: password });
   } catch (error) {
     console.error("Error in /create-user endpoint: ", JSON.stringify(error, null, 2));
     res.status(500).json({ error });
