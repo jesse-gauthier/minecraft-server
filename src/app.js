@@ -79,7 +79,16 @@ const createServer = async (serverData) => {
       body: JSON.stringify(serverData),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(JSON.stringify(data) || response.statusText);
+
+    if (!response.ok) {
+      console.error("Error response from server: ", {
+        status: response.status,
+        statusText: response.statusText,
+        data: data
+      });
+      throw new Error(data.errors ? JSON.stringify(data.errors) : response.statusText);
+    }
+
     console.log("Server creation successful. Response: ", data.attributes);
     return data.attributes;
   } catch (error) {
@@ -87,6 +96,7 @@ const createServer = async (serverData) => {
     throw error;
   }
 };
+
 
 const getNestAndEggIds = async () => {
   try {
