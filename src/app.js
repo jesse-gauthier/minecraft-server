@@ -86,6 +86,9 @@ const createServer = async (serverData) => {
         statusText: response.statusText,
         data: data
       });
+      if (data.errors) {
+        console.error("Validation errors: ", data.errors.map(error => JSON.stringify(error, null, 2)).join('\n'));
+      }
       throw new Error(data.errors ? JSON.stringify(data.errors) : response.statusText);
     }
 
@@ -96,6 +99,7 @@ const createServer = async (serverData) => {
     throw error;
   }
 };
+
 
 
 const getNestAndEggIds = async () => {
