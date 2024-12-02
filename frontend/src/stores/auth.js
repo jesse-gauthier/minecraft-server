@@ -6,6 +6,7 @@ import { ref } from 'vue'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
+  const userNumber = ref(null)
   const isAuthResolved = ref(false)
 
   const login = async () => {
@@ -31,13 +32,17 @@ export const useAuthStore = defineStore('auth', () => {
         last_name: lastName,
         password
       }
-      await fetch('http://147.79.74.105:3000/create-user', {
+      const response = await fetch('http://147.79.74.105:3000/create-user', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(userPayload)
       })
+      const data = await response.json()
+      if (response.ok) {
+        userNumber.value = data.user_number
+      }
     } catch (error) {
       console.error(error)
     }
@@ -46,6 +51,7 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = async () => {
     await signOut(auth)
     user.value = null
+    userNumber.value = null
   }
 
   // Create a promise that resolves when Firebase auth state is known
@@ -57,5 +63,5 @@ export const useAuthStore = defineStore('auth', () => {
     })
   })
 
-  return { user, login, logout, register, isAuthResolved, authReady }
+  return { user, userNumber, login, logout, register, isAuthResolved, authReady }
 })

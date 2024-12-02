@@ -124,7 +124,7 @@ app.post("/create-user", async (req, res) => {
     // Check if the email already exists
     const existingUser = await getUserByEmail(email);
     if (existingUser) {
-      return res.status(200).json({ message: "User already exists", user_number: existingUser.id });
+      return res.status(200).json({ message: "User already exists", user_number: existingUser.id, user: existingUser });
     }
 
     // Additional input validation can be added here
@@ -139,7 +139,7 @@ app.post("/create-user", async (req, res) => {
     };
 
     const user = await createUser(userPayload);
-    res.status(201).json({ message: "User created", user });
+    res.status(201).json({ message: "User created", user_number: user.id, user });
   } catch (error) {
     res.status(500).json({ error });
   }
