@@ -1,13 +1,37 @@
 <!-- src/views/Home.vue -->
 <template>
-  <div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold">Home Page</h1>
-    <p>Welcome to the home page.</p>
-  </div>
+  <main class="flex">
+    <ServerContainer :userInformation="userInformation" />
+    <div class="container mx-auto p-4 flex gap-3">
+      <ActionButton action="Start" :server="userInformation.servers" />
+      <ActionButton action="Stop" :server="userInformation.servers" />
+      <ActionButton action="Restart" :server="userInformation.servers" />
+      <ActionButton action="Backup" :server="userInformation.servers" />
+      <ActionButton action="Delete" :server="userInformation.servers" />
+      <ActionButton action="Create" :server="userInformation.servers" />
+    </div>
+  </main>
 </template>
 
 <script setup>
-// No specific script needed
+// Imports
+import { ref } from 'vue'
+
+// Components
+import ActionButton from '@/components/server/actions/ActionButton.vue'
+import ServerContainer from '@/components/server/ServerContainer.vue'
+
+const userInformation = ref({
+  name: 'John Doe',
+  email: 'john.doe@example.com',
+  servers: {
+    server1: {
+      name: 'Server 1',
+      status: 'online',
+      id: '1',
+    },
+  },
+})
 </script>
 
 <style scoped>

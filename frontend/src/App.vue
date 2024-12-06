@@ -7,12 +7,6 @@
           >Free Minecraft Server</router-link
         >
       </div>
-      <div class="flex-none">
-        <ul class="menu menu-horizontal px-1">
-          <li><router-link to="/">Home</router-link></li>
-          <li><router-link to="/dashboard">Dashboard</router-link></li>
-        </ul>
-      </div>
     </nav>
     <router-view></router-view>
   </div>
